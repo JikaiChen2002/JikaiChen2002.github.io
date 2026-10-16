@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jikai Chen</title>
+  <meta name="description" content="Jikai Chen — PhD researcher in Biomedical Imaging Sciences at The University of Manchester, working on medical AI and multimodal medical imaging.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js"></script>
+  <script src="js/anatomy.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="site-name" href="index.html">Jikai Chen</a>
+    <nav>
+      <ul>
+        <li><a href="index.html" aria-current="page">About</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="publications.html">Papers</a></li>
+        <li><a href="travel.html">Travel</a></li>
+        <li><a href="food.html">Food</a></li>
+        <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode">☾</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="intro" aria-label="About">
+    <img src="images/photo.jpg" alt="Photo of Jikai Chen" width="600" height="600">
+    <div>
+      <h1>Jikai Chen</h1>
+      <p class="role">PhD Researcher in Biomedical Imaging Sciences<br>
+        <a href="https://www.manchester.ac.uk/">The University of Manchester</a></p>
+
+      <ul class="links">
+        <li><a href="mailto:jikai.chen@postgrad.manchester.ac.uk">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6 8.5 7 8.5-7"/></svg>Email</a></li>
+        <li><a href="https://scholar.google.com/citations?user=FA1z700AAAAJ&amp;hl=en">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9.5 12 4l10 5.5-10 5.5z"/><path d="M6 12v4.5c0 1.5 2.7 3 6 3s6-1.5 6-3V12"/></svg>Google Scholar</a></li>
+        <li><a href="https://github.com/JikaiChen2002">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>GitHub</a></li>
+      </ul>
+
+      <p>
+        I'm a PhD researcher in the Division of Informatics, Imaging and Data Sciences
+        at <a href="https://www.manchester.ac.uk/">The University of Manchester</a>,
+        supervised by
+        <!-- ✏️ 导师链接：现在指向 Google Scholar，可换成他的个人主页或曼大主页 -->
+        <a href="https://scholar.google.com/citations?user=QUwym50AAAAJ&amp;hl=en">Dr Mobarak Hoque</a>.
+      </p>
+      <!-- ✏️ 最后一句是我替你写的个人风格句，不喜欢可以改掉或删掉 -->
+      <p>
+        I work on <strong>medical AI</strong>: deep learning methods for multimodal medical imaging,
+        from radiological scans (CT and MRI) to digital pathology slides. My current project focuses on
+        appendiceal cancer. I came to medical imaging
+        from mathematics and statistics, and I like problems where a clean model of the data meets a
+        messy clinical reality.
+      </p>
+    </div>
+  </section>
+
+  <section aria-labelledby="edu-heading">
+    <h2 id="edu-heading">Education</h2>
+    <!-- ✏️ 可以在 <span class="when"> 里加上年份，例如 2025–now -->
+    <ol class="path">
+      <li class="now">
+        <span class="when">Now</span>
+        <span class="what">PhD, Biomedical Imaging Sciences</span>
+        <span class="where">The University of Manchester · Manchester, UK</span>
+      </li>
+      <li>
+        <span class="when"></span>
+        <span class="what">MSc, Statistics with Data Science</span>
+        <span class="where">The University of Edinburgh · Edinburgh, UK</span>
+      </li>
+      <li>
+        <span class="when"></span>
+        <span class="what">BSc, Mathematics and Applied Mathematics</span>
+        <span class="where">Shanghai University · Shanghai, China</span>
+      </li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="appx-heading">
+    <h2 id="appx-heading">Where is the appendix?</h2>
+    <p class="section-lead">
+      My current project is on <strong>appendiceal cancer</strong>. The appendix is a small, finger-like
+      pouch attached to the caecum, where the small intestine meets the large intestine, in the lower
+      right of the abdomen. Cancers here are rare and are often found only after the appendix has been
+      removed for suspected appendicitis, which is one reason careful reading of CT scans matters.
+    </p>
+
+    <div class="anat" id="anat">
+      <figure class="anat-body">
+        <svg viewBox="0 0 300 420" role="img" aria-labelledby="anat-title">
+          <title id="anat-title">Front view of the abdomen with the appendix highlighted in the lower right</title>
+          <path class="a-body" d="M128 0 L128 18 C110 26 70 30 44 44 C26 54 22 72 26 96 L40 170 C46 200 50 222 50 248 C50 280 40 300 40 330 C40 370 70 405 150 412 C230 405 260 370 260 330 C260 300 250 280 250 248 C250 222 254 200 260 170 L274 96 C278 72 274 54 256 44 C230 30 190 26 172 18 L172 0 Z"/>
+          <path class="a-faint" d="M72 150 Q110 178 150 142 Q190 178 228 150"/>
+          <path class="a-faint" d="M58 322 C70 300 100 305 112 330 C120 350 135 362 150 362 C165 362 180 350 188 330 C200 305 230 300 242 322"/>
+
+          <path class="organ o-liver" tabindex="0" data-name="Liver" d="M56 132 C64 112 120 108 178 120 C194 124 196 140 182 150 C152 170 112 188 80 198 C64 194 54 166 56 132 Z"/>
+          <path class="organ o-stomach" tabindex="0" data-name="Stomach" d="M196 126 C222 124 240 148 236 178 C232 206 204 220 180 208 C168 202 172 190 186 188 C204 186 212 168 206 150 C202 138 192 132 196 126 Z"/>
+          <path class="organ o-small" tabindex="0" data-name="Small intestine" d="M118 300 C118 250 140 250 140 280 C140 310 160 310 160 280 C160 250 182 250 182 280 C182 310 196 312 190 326 C182 340 150 332 140 330 C128 326 118 320 112 304"/>
+          <path class="organ o-colon" tabindex="0" data-name="Large intestine (colon)" d="M90 292 L90 240 C90 228 96 224 108 224 L198 224 C208 224 212 230 212 240 L212 300 C212 322 196 330 180 334 C166 338 156 344 152 356 L150 392"/>
+          <path class="organ o-caecum" tabindex="0" data-name="Caecum, the first part of the large intestine" d="M76 290 C74 312 84 326 98 326 C112 326 116 312 112 296 C108 286 80 282 76 290 Z"/>
+          <circle class="a-pulse" cx="112" cy="342" r="9"/>
+          <path class="organ o-appx" tabindex="0" data-name="Appendix" d="M100 322 C104 334 110 342 120 348"/>
+          <rect class="a-zoom" x="64" y="270" width="72" height="92" rx="6"/>
+
+          <text class="a-side" x="6" y="24">R</text>
+          <text class="a-side" x="294" y="24" text-anchor="end">L</text>
+        </svg>
+        <figcaption>
+          <span class="anat-name" aria-live="polite">Hover or tap an organ to name it.</span>
+          <span class="anat-hint">Front view. As on a scan, the patient's right is on your left.</span>
+        </figcaption>
+      </figure>
+
+      <figure class="anat-zoom">
+        <svg viewBox="0 0 260 260" role="img" aria-labelledby="zoom-title">
+          <title id="zoom-title">Close-up of the caecum showing where the appendix can lie</title>
+          <path class="z-colon" d="M88 0 L168 0 L170 110 C172 150 168 192 132 200 C96 206 84 176 86 140 Z"/>
+          <path class="z-fold" d="M88 40 Q128 52 168 40 M87 80 Q128 92 169 80 M87 120 Q128 132 170 120"/>
+          <path class="z-ileum" d="M262 128 C220 126 190 132 160 140"/>
+          <path class="z-appx" id="z-appx" d="M140 196 C150 170 120 150 112 122 C106 98 108 74 118 54"/>
+          <circle class="z-base" cx="140" cy="196" r="4"/>
+          <text class="z-label" x="178" y="26">Ascending</text>
+          <text class="z-label" x="178" y="42">colon</text>
+          <text class="z-label" x="80" y="186" text-anchor="end">Caecum</text>
+          <text class="z-label" x="258" y="160" text-anchor="end">Ileum</text>
+        </svg>
+        <div class="appx-pos" role="group" aria-label="Appendix position">
+          <button type="button" data-pos="retro" aria-pressed="true">Retrocaecal</button>
+          <button type="button" data-pos="pelvic" aria-pressed="false">Pelvic</button>
+          <button type="button" data-pos="sub" aria-pressed="false">Subcaecal</button>
+          <button type="button" data-pos="pre" aria-pressed="false">Pre-ileal</button>
+          <button type="button" data-pos="post" aria-pressed="false">Post-ileal</button>
+        </div>
+        <figcaption>
+          <span class="appx-desc" aria-live="polite"><strong>65%</strong> Behind the caecum. The most common position.</span>
+          <span class="anat-hint">The appendix lies in a different place in different people. Dashed lines run behind the bowel. Proportions from Wakeley's 1933 study of 10,000 cases.</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="news-heading">
+    <h2 id="news-heading">Recent news</h2>
+    <!-- ✏️ 只放最近 3–5 条，完整列表在 news.html；新的加在最上面 -->
+    <ul class="news">
+      <li><time datetime="2026-10">Oct 2026</time><span>Launched this website.</span></li>
+    </ul>
+    <p class="more"><a href="news.html">All news</a></p>
+  </section>
+
+  <!-- ✏️ 有论文后：删掉下面 START 和 END 两行，首页就会显示代表作 -->
+  <!-- START
+  <section aria-labelledby="pubs-heading">
+    <h2 id="pubs-heading">Selected papers</h2>
+    <ul class="pubs">
+      <li>
+        <span class="pub-title">Paper Title Goes Here</span>
+        <span class="pub-authors"><span class="me">Jikai Chen</span>, Co-author A, Mobarak Hoque</span>
+        <span class="pub-venue"><em>Conference or Journal Name</em>, 2027</span>
+        <span class="pub-links"><a href="#">PDF</a><a href="#">Code</a><a href="#">arXiv</a></span>
+      </li>
+    </ul>
+    <p class="more"><a href="publications.html">All papers</a></p>
+  </section>
+  END -->
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">© <span id="year">2026</span> Jikai Chen · Manchester, UK</div>
+</footer>
+
+</body>
+</html>

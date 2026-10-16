@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Food · Jikai Chen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js"></script>
+  <script src="js/life-data.js"></script>
+  <script src="js/gallery.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="site-name" href="index.html">Jikai Chen</a>
+    <nav>
+      <ul>
+        <li><a href="index.html">About</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="publications.html">Papers</a></li>
+        <li><a href="travel.html">Travel</a></li>
+        <li><a href="food.html" aria-current="page">Food</a></li>
+        <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode">☾</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="page-title">Food</h1>
+  <p class="page-lead">Good things I've eaten, cooked or queued for. Click a photo to see it larger.</p>
+
+  <!-- ✏️ 美食照片在 js/life-data.js 里修改 -->
+  <div id="food-grid" class="food-grid"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">© <span id="year">2026</span> Jikai Chen · Manchester, UK</div>
+</footer>
+
+</body>
+</html>
