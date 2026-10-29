@@ -8,6 +8,7 @@
 index.html          首页（About + 最近新闻 + 代表论文）
 news.html           全部新闻
 publications.html   全部论文
+learning.html       深度学习资料（PDF 在线阅读、Notebook 在线查看与下载）
 travel.html         旅行（地图 + 照片）
 food.html           美食
 css/style.css       样式（颜色、字体都在文件最上面）
@@ -18,7 +19,16 @@ js/gallery.js       生成旅行/美食页面和照片查看器
 images/photo.jpg    头像
 images/travel/      旅行照片
 images/food/        美食照片
+resources/deep-learning/  Deep Learning in 100 Hours 的 PDF、Notebook 和 HTML 阅读版
+scripts/render-notebooks.mjs  重新生成 Notebook HTML 阅读版
 ```
+
+## 更新深度学习资料
+
+1. 把新版 PDF 覆盖到 `resources/deep-learning/Deep_Learning_in_100_Hours.pdf`
+2. 把新版 Notebook 放进 `resources/deep-learning/notebooks/`
+3. 在网站根目录运行 `node scripts/render-notebooks.mjs`
+4. 打开 `learning.html` 检查 PDF、在线阅读和下载链接
 
 ## 第一步：检查内容
 

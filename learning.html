@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning · Jikai Chen</title>
+  <meta name="description" content="Deep Learning in 100 Hours: Jikai Chen's one-month review plan from PyTorch foundations to fine-tuning and medical visual question answering.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="site-name" href="index.html">Jikai Chen</a>
+    <nav>
+      <ul>
+        <li><a href="index.html">About</a></li>
+        <li><a href="learning.html" aria-current="page">Learning</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="publications.html">Papers</a></li>
+        <li><a href="travel.html">Travel</a></li>
+        <li><a href="food.html">Food</a></li>
+        <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode">☾</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="page-title">Deep Learning in 100 Hours</h1>
+  <p class="page-lead">
+    A personal one-month review plan designed around my background in mathematics, statistics and data science.
+    It begins with a simple MLP and continues through Transformers, LoRA, QLoRA and an introduction to medical visual question answering.
+  </p>
+
+  <div class="resource-actions" aria-label="Main downloads">
+    <a class="resource-button primary" href="resources/deep-learning/Deep_Learning_in_100_Hours.pdf" target="_blank" rel="noopener">Read the PDF</a>
+    <a class="resource-button" href="resources/deep-learning/Deep_Learning_in_100_Hours.pdf" download>Download the PDF</a>
+  </div>
+
+  <dl class="material-overview" aria-label="Course overview">
+    <div><dt>Duration</dt><dd>One month</dd></div>
+    <div><dt>Study plan</dt><dd>20 days</dd></div>
+    <div><dt>Theory</dt><dd>About 120 pages</dd></div>
+    <div><dt>Practice</dt><dd>4 notebooks</dd></div>
+  </dl>
+
+  <section aria-labelledby="purpose-heading">
+    <h2 id="purpose-heading">Purpose</h2>
+    <p class="section-lead">
+      I created these materials to review topics I have encountered before, connect the mathematical ideas to complete PyTorch workflows,
+      and build a stronger foundation for the next stage of my research. The simpler material is reviewed briefly rather than skipped,
+      while more time is given to Transformers and parameter-efficient fine-tuning.
+    </p>
+  </section>
+
+  <section aria-labelledby="path-heading">
+    <h2 id="path-heading">One-month path</h2>
+    <ol class="learning-weeks">
+      <li><div><strong>PyTorch foundations</strong><span>MLPs, losses, full backpropagation, training loops, CNNs, RNN/GRU and checkpoints.</span></div></li>
+      <li><div><strong>Transformers and language models</strong><span>Tokens, attention, Transformer blocks, Tiny GPT and the main LLaMA components.</span></div></li>
+      <li><div><strong>Fine-tuning and question answering</strong><span>LoRA, QLoRA memory reasoning, QA evaluation and a controlled rank comparison.</span></div></li>
+      <li><div><strong>Vision and multimodal learning</strong><span>ViT, CLIP, vision-language fusion and a lightweight PathVQA-style capstone.</span></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="pdf-heading">
+    <h2 id="pdf-heading">Theory: 120-page PDF</h2>
+    <p class="section-lead">
+      The PDF contains concise explanations, mathematical derivations, daily study plans and acceptance questions.
+      If the embedded viewer is unavailable in your browser, use the reading or download buttons above.
+    </p>
+    <object class="pdf-frame" data="resources/deep-learning/Deep_Learning_in_100_Hours.pdf#view=FitH" type="application/pdf">
+      <p>Your browser cannot display the embedded PDF. <a href="resources/deep-learning/Deep_Learning_in_100_Hours.pdf">Open the PDF directly</a>.</p>
+    </object>
+  </section>
+
+  <section aria-labelledby="notebooks-heading">
+    <h2 id="notebooks-heading">Hands-on practice: Python notebooks</h2>
+    <p class="section-lead">
+      The notebooks use small, runnable examples to connect theory with code. The HTML versions are intended for online reading;
+      download the original <code>.ipynb</code> files to run and modify them locally.
+    </p>
+    <ul class="notebook-list">
+      <li>
+        <span class="notebook-title">Week 1: PyTorch training foundations</span>
+        <span class="notebook-summary">MLP, backpropagation, training and validation, CNN, RNN/GRU and checkpointing.</span>
+        <span class="notebook-links"><a href="resources/deep-learning/notebook-html/week01_training_loop.html" target="_blank" rel="noopener">View online</a><a href="resources/deep-learning/notebooks/week01_training_loop.ipynb" download>Download notebook</a></span>
+      </li>
+      <li>
+        <span class="notebook-title">Week 2: Transformer and Tiny GPT</span>
+        <span class="notebook-summary">Tokenisation, causal attention, Transformer blocks, training, generation and LLaMA components.</span>
+        <span class="notebook-links"><a href="resources/deep-learning/notebook-html/week02_tiny_gpt.html" target="_blank" rel="noopener">View online</a><a href="resources/deep-learning/notebooks/week02_tiny_gpt.ipynb" download>Download notebook</a></span>
+      </li>
+      <li>
+        <span class="notebook-title">Week 3: LoRA, QLoRA and QA</span>
+        <span class="notebook-summary">Low-rank adaptation, memory reasoning, QA metrics and a controlled rank comparison.</span>
+        <span class="notebook-links"><a href="resources/deep-learning/notebook-html/week03_lora_qa.html" target="_blank" rel="noopener">View online</a><a href="resources/deep-learning/notebooks/week03_lora_qa.ipynb" download>Download notebook</a></span>
+      </li>
+      <li>
+        <span class="notebook-title">Week 4: Vision, multimodal learning and PathVQA</span>
+        <span class="notebook-summary">ViT, CLIP-style contrastive learning, visual-language fusion and a lightweight medical VQA experiment.</span>
+        <span class="notebook-links"><a href="resources/deep-learning/notebook-html/week04_pathvqa.html" target="_blank" rel="noopener">View online</a><a href="resources/deep-learning/notebooks/week04_pathvqa.ipynb" download>Download notebook</a></span>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="notes-heading">
+    <h2 id="notes-heading">Notes and attribution</h2>
+    <p class="learning-note">
+      These materials are an educational rewrite and study guide based on cited papers, instructor resources and open-source examples.
+      Full attribution is included in the PDF. The medical sections are for machine-learning education only and must not be used for clinical decisions.
+    </p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">© <span id="year">2026</span> Jikai Chen · Manchester, UK</div>
+</footer>
+
+</body>
+</html>
