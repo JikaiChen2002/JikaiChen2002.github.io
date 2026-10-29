@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Week 4 Lab: ViT, CLIP, VLMs, and a PathVQA-Style Capstone · Jikai Chen</title>
+  <meta name="description" content="Static online reading version of Week 4 Lab: ViT, CLIP, VLMs, and a PathVQA-Style Capstone.">
+  <style>
+    :root { color-scheme: light dark; --bg:#fff; --text:#1c2230; --muted:#697386; --accent:#5b2d8e; --rule:#e4e1ea; --code:#f6f4f8; --output:#fbfafc; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#16141b; --text:#ebe9f1; --muted:#aaa5b4; --accent:#c2a5ec; --rule:#302b3a; --code:#211e28; --output:#1b1821; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    a { color:var(--accent); }
+    header { border-bottom:1px solid var(--rule); }
+    .wrap { max-width:980px; margin:0 auto; padding:18px 24px; }
+    header .wrap { display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+    main { max-width:980px; margin:0 auto; padding:28px 24px 70px; }
+    h1 { font-size:34px; line-height:1.2; margin:22px 0; }
+    h2 { font-size:26px; margin-top:38px; border-bottom:1px solid var(--rule); padding-bottom:6px; }
+    h3 { font-size:21px; margin-top:30px; }
+    .cell { margin:18px 0; }
+    .markdown-cell p, .markdown-cell li { max-width:78ch; }
+    .code-cell { display:grid; grid-template-columns:70px 1fr; gap:10px; align-items:start; }
+    .prompt { color:var(--muted); font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; padding-top:12px; text-align:right; }
+    pre { margin:0; overflow:auto; white-space:pre-wrap; word-break:break-word; }
+    .code { padding:14px 16px; border:1px solid var(--rule); border-radius:6px; background:var(--code); font:14px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .outputs { grid-column:2; margin-top:-2px; }
+    .output-text { padding:12px 16px; border-left:3px solid var(--rule); background:var(--output); font:14px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .output-error { border-left-color:#b42318; color:#b42318; }
+    .output-image img { max-width:100%; height:auto; display:block; }
+    table { border-collapse:collapse; display:block; overflow:auto; }
+    th, td { border:1px solid var(--rule); padding:7px 10px; }
+    blockquote { margin-left:0; padding-left:16px; border-left:3px solid var(--rule); color:var(--muted); }
+    .notice { color:var(--muted); font-size:14px; margin:0 0 28px; }
+    @media (max-width:640px) { .code-cell { grid-template-columns:1fr; } .prompt { text-align:left; padding:0; } .outputs { grid-column:1; } main { padding-left:14px; padding-right:14px; } }
+  </style>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <header><div class="wrap"><a href="../../../learning.html">← Back to Learning</a><a href="../notebooks/week04_pathvqa.ipynb" download>Download notebook</a></div></header>
+  <main>
+    <h1>Week 4 Lab: ViT, CLIP, VLMs, and a PathVQA-Style Capstone</h1>
+    <p class="notice">Static reading version. Download the original notebook to run or modify the code.</p>
+    <section class="cell markdown-cell"><h1>Week 4 Lab: ViT, CLIP, VLMs, and a PathVQA-Style Capstone</h1>
+<p>This notebook is the CPU-friendly core route for Week 4 of <strong>Deep Learning in 100 Hours</strong>. It uses generated images and toy text only. It cannot support medical conclusions, diagnosis, or claims about real PathVQA performance.</p>
+<table>
+<thead>
+<tr>
+<th>Day</th>
+<th>Main idea</th>
+<th>Evidence to keep</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>16</td>
+<td>Images as ViT patch tokens</td>
+<td>Patch/CLS shapes and tiny overfit result</td>
+</tr>
+<tr>
+<td>17</td>
+<td>CLIP-style contrastive alignment</td>
+<td>Aligned loss and retrieval beat permutation</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Lightweight image-question fusion</td>
+<td>Full model beats unimodal and shuffle controls</td>
+</tr>
+<tr>
+<td>19</td>
+<td>PathVQA protocol and limitations</td>
+<td>Stratified metrics, data card, failure records</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Reproducible capstone package</td>
+<td>Result table, manifest, and oral defense</td>
+</tr>
+</tbody></table>
+<p><strong>Core Light:</strong> every cell here. <strong>Optional Heavy:</strong> real PathVQA access, pretrained vision/language models, GPU fine-tuning, and a medically meaningful error review. External resources must be checked for source, license, de-identification, and split policy before use.</p>
+</section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>from collections import Counter, defaultdict
+import json
+
+import matplotlib.pyplot as plt
+import torch
+from torch import nn
+from torch.nn import functional as F
+
+from dl100h.cnn import make_stripe_images
+from dl100h.pathvqa import TOY_PATHVQA, exact_match, normalize_answer, token_f1
+from dl100h.utils import count_parameters, seed_everything
+from dl100h.vision import TinyCLIP, TinyViT, clip_contrastive_loss
+from dl100h.vlm import TinyVLMClassifier
+
+seed_everything(42)
+device = torch.device(&#039;cpu&#039;)
+print({&#039;torch&#039;: torch.__version__, &#039;device&#039;: str(device)})</code></pre>
+        
+      </section>
+<section class="cell markdown-cell"><h1>Day 16 — Vision Transformers: images as token sequences</h1>
+<p>A ViT divides an image into non-overlapping patches and projects each patch to a token. For image size $H\times W$ and square patch size $P$, the number of patches is</p>
+<p>$$N=\frac{H}{P}\frac{W}{P}.$$</p>
+<p>A classification token is prepended, position embeddings are added, and a Transformer encoder mixes information across patches. Smaller patches increase sequence length and attention cost; larger patches reduce detail.</p>
+</section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>seed_everything(16)
+stripe_images_gray, stripe_labels = make_stripe_images(n=24, image_size=32, seed=16)
+stripe_images = stripe_images_gray.repeat(1, 3, 1, 1)
+vit = TinyViT(
+    image_size=32,
+    patch_size=8,
+    in_channels=3,
+    dim=16,
+    depth=1,
+    n_heads=4,
+    n_classes=2,
+).to(device)
+
+with torch.inference_mode():
+    patch_tokens = vit.patch(stripe_images.to(device))
+    all_tokens = vit.forward_features(stripe_images.to(device))
+    initial_logits = vit(stripe_images.to(device))
+
+assert patch_tokens.shape == (24, 16, 16)
+assert all_tokens.shape == (24, 17, 16)
+assert initial_logits.shape == (24, 2)
+{
+    &#039;image_shape&#039;: tuple(stripe_images.shape),
+    &#039;patch_token_shape&#039;: tuple(patch_tokens.shape),
+    &#039;tokens_with_cls_shape&#039;: tuple(all_tokens.shape),
+    &#039;parameters&#039;: count_parameters(vit),
+}</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>vit_optimizer = torch.optim.Adam(vit.parameters(), lr=0.02)
+vit_losses = []
+vit.train()
+for step in range(80):
+    vit_logits = vit(stripe_images.to(device))
+    vit_loss = F.cross_entropy(vit_logits, stripe_labels.to(device))
+    vit_optimizer.zero_grad(set_to_none=True)
+    vit_loss.backward()
+    vit_optimizer.step()
+    vit_losses.append(vit_loss.item())
+
+vit.eval()
+with torch.inference_mode():
+    vit_predictions = vit(stripe_images.to(device)).argmax(dim=-1).cpu()
+vit_accuracy = (vit_predictions == stripe_labels).float().mean().item()
+assert vit_accuracy &gt;= 0.95
+{&#039;initial_loss&#039;: vit_losses[0], &#039;final_loss&#039;: vit_losses[-1], &#039;tiny_batch_accuracy&#039;: vit_accuracy}</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>figure, axes = plt.subplots(1, 2, figsize=(9, 3.2))
+axes[0].plot(vit_losses)
+axes[0].set(xlabel=&#039;optimization step&#039;, ylabel=&#039;cross-entropy&#039;, title=&#039;Tiny ViT overfit curve&#039;)
+axes[1].imshow(stripe_images[0].permute(1, 2, 0).clamp(0, 1))
+axes[1].set_title(f&#039;label={stripe_labels[0].item()}, prediction={vit_predictions[0].item()}&#039;)
+axes[1].axis(&#039;off&#039;)
+figure.tight_layout()
+plt.show()</code></pre>
+        
+      </section>
+<section class="cell markdown-cell"><h2>Day 16 practice and acceptance</h2>
+<ol>
+<li>Predict token counts for patch sizes 4, 8, and 16 before changing the model.</li>
+<li>Compare parameter count and runtime with the small CNN from Week 1.</li>
+<li>Remove position embeddings and describe what spatial information is lost.</li>
+<li>Compare CLS-token pooling with mean patch pooling.</li>
+</ol>
+<p><strong>Accept the day when:</strong> you can derive the patch count, trace $(B,N,C)$ including CLS, explain the patch-size trade-off, and overfit the tiny synthetic image batch.</p>
+</section>
+<section class="cell markdown-cell"><h1>Day 17 — CLIP-style contrastive image-text alignment</h1>
+<p>CLIP-style training maps images and texts to a shared normalized embedding space. For a batch of paired features, the similarity matrix contains all image-text comparisons. The symmetric objective applies cross-entropy from image to text and from text to image.</p>
+<p>In-batch negatives can include false negatives when different captions describe the same concept. Retrieval success can also come from shortcuts, so inspect data and compare against shuffled pairs.</p>
+</section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>torch.manual_seed(17)
+latent_pairs = torch.eye(8)
+image_features = latent_pairs + 0.01 * torch.randn_like(latent_pairs)
+text_features = latent_pairs + 0.01 * torch.randn_like(latent_pairs)
+permuted_text_features = text_features.roll(shifts=1, dims=0)
+
+aligned_clip_loss = clip_contrastive_loss(image_features, text_features)
+permuted_clip_loss = clip_contrastive_loss(image_features, permuted_text_features)
+similarities = F.normalize(image_features, dim=-1) @ F.normalize(text_features, dim=-1).T
+image_to_text = similarities.argmax(dim=-1)
+retrieval_at_one = (image_to_text == torch.arange(8)).float().mean().item()
+
+assert aligned_clip_loss &lt; permuted_clip_loss
+assert retrieval_at_one &gt;= 0.95
+{
+    &#039;aligned_loss&#039;: aligned_clip_loss.item(),
+    &#039;permuted_loss&#039;: permuted_clip_loss.item(),
+    &#039;image_to_text_retrieval_at_1&#039;: retrieval_at_one,
+}</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>seed_everything(170)
+tiny_clip = TinyCLIP(vocab_size=32, dim=16, image_size=32)
+clip_images = torch.randn(4, 3, 32, 32)
+clip_text_ids = torch.tensor([
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12],
+    [13, 14, 15, 16],
+])
+tiny_clip_loss = tiny_clip(clip_images, clip_text_ids)
+tiny_clip_loss.backward()
+
+assert tiny_clip.image_encoder.head.weight.grad is not None
+assert tiny_clip.text_projection.weight.grad is not None
+{
+    &#039;loss&#039;: tiny_clip_loss.item(),
+    &#039;parameters&#039;: count_parameters(tiny_clip),
+    &#039;image_gradient_norm&#039;: tiny_clip.image_encoder.head.weight.grad.norm().item(),
+    &#039;text_gradient_norm&#039;: tiny_clip.text_projection.weight.grad.norm().item(),
+}</code></pre>
+        
+      </section>
+<section class="cell markdown-cell"><h2>Day 17 practice and acceptance</h2>
+<ol>
+<li>Write the $8\times8$ similarity matrix and identify positives and negatives.</li>
+<li>Compare image-to-text and text-to-image retrieval at 1.</li>
+<li>Change temperature and observe loss and similarity concentration.</li>
+<li>Construct a false-negative example with two valid captions for one visual concept.</li>
+<li>List metadata or acquisition shortcuts that could create misleading retrieval performance.</li>
+</ol>
+<p><strong>Accept the day when:</strong> aligned pairs beat the permutation, the symmetric loss is explained, retrieval direction is explicit, and false negatives and shortcuts are acknowledged.</p>
+</section>
+<section class="cell markdown-cell"><h1>Day 18 — Lightweight visual question answering and modality-use tests</h1>
+<p>The local VLM baseline mean-pools image patch tokens and non-padding question tokens, normalizes both vectors, concatenates them, and predicts a closed answer. This is inexpensive and interpretable, but successful training does not prove that both modalities are used.</p>
+<p>The synthetic XOR task below requires both an image bit and a question bit. Majority, question-only, and image-only predictors are limited to 50%, while a fused nonlinear model can solve all four combinations. Controlled modality shuffles should damage the fused result.</p>
+</section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>seed_everything(18)
+image_bits = torch.tensor([0, 0, 1, 1], dtype=torch.long).repeat(8)
+question_bits = torch.tensor([0, 1, 0, 1], dtype=torch.long).repeat(8)
+vlm_labels = torch.bitwise_xor(image_bits, question_bits)
+vlm_images = image_bits.float().view(-1, 1, 1, 1).expand(-1, 3, 32, 32).clone()
+vlm_images += 0.02 * torch.randn_like(vlm_images)
+question_token = question_bits + 1
+vlm_questions = torch.stack(
+    [question_token, torch.full_like(question_token, 3), torch.zeros_like(question_token)], dim=1
+)
+
+assert set(zip(image_bits.tolist(), question_bits.tolist(), vlm_labels.tolist())) == {
+    (0, 0, 0), (0, 1, 1), (1, 0, 1), (1, 1, 0)
+}
+{
+    &#039;images&#039;: tuple(vlm_images.shape),
+    &#039;questions&#039;: tuple(vlm_questions.shape),
+    &#039;label_counts&#039;: dict(Counter(vlm_labels.tolist())),
+}</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>def lookup_baseline_accuracy(keys: torch.Tensor, labels: torch.Tensor) -&gt; float:
+    prediction_by_key = {}
+    for key in keys.unique().tolist():
+        candidates = labels[keys == key].tolist()
+        prediction_by_key[key] = Counter(candidates).most_common(1)[0][0]
+    predictions = torch.tensor([prediction_by_key[key] for key in keys.tolist()])
+    return (predictions == labels).float().mean().item()
+
+majority_label = Counter(vlm_labels.tolist()).most_common(1)[0][0]
+majority_accuracy = (vlm_labels == majority_label).float().mean().item()
+question_only_accuracy = lookup_baseline_accuracy(question_bits, vlm_labels)
+image_only_accuracy = lookup_baseline_accuracy(image_bits, vlm_labels)
+{
+    &#039;majority_accuracy&#039;: majority_accuracy,
+    &#039;question_only_accuracy&#039;: question_only_accuracy,
+    &#039;image_only_accuracy&#039;: image_only_accuracy,
+}</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>tiny_vlm = TinyVLMClassifier(vocab_size=8, n_answers=2, dim=16, padding_idx=0)
+vlm_optimizer = torch.optim.Adam(tiny_vlm.parameters(), lr=0.02)
+vlm_losses = []
+tiny_vlm.train()
+for step in range(120):
+    vlm_logits = tiny_vlm(vlm_images, vlm_questions)
+    vlm_loss = F.cross_entropy(vlm_logits, vlm_labels)
+    vlm_optimizer.zero_grad(set_to_none=True)
+    vlm_loss.backward()
+    vlm_optimizer.step()
+    vlm_losses.append(vlm_loss.item())
+
+tiny_vlm.eval()
+with torch.inference_mode():
+    full_predictions = tiny_vlm(vlm_images, vlm_questions).argmax(dim=-1)
+full_vlm_accuracy = (full_predictions == vlm_labels).float().mean().item()
+assert full_vlm_accuracy &gt;= 0.95
+{&#039;initial_loss&#039;: vlm_losses[0], &#039;final_loss&#039;: vlm_losses[-1], &#039;multimodal_accuracy&#039;: full_vlm_accuracy}</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>image_permutation = torch.arange(len(vlm_images)).roll(2)
+question_permutation = torch.arange(len(vlm_questions)).roll(1)
+with torch.inference_mode():
+    image_shuffled_predictions = tiny_vlm(
+        vlm_images[image_permutation], vlm_questions
+    ).argmax(dim=-1)
+    question_shuffled_predictions = tiny_vlm(
+        vlm_images, vlm_questions[question_permutation]
+    ).argmax(dim=-1)
+image_shuffled_accuracy = (image_shuffled_predictions == vlm_labels).float().mean().item()
+question_shuffled_accuracy = (question_shuffled_predictions == vlm_labels).float().mean().item()
+
+assert image_shuffled_accuracy &lt; full_vlm_accuracy
+assert question_shuffled_accuracy &lt; full_vlm_accuracy
+{
+    &#039;full_accuracy&#039;: full_vlm_accuracy,
+    &#039;image_shuffled_accuracy&#039;: image_shuffled_accuracy,
+    &#039;question_shuffled_accuracy&#039;: question_shuffled_accuracy,
+}</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>short_questions = vlm_questions[:4, :2]
+padded_questions = vlm_questions[:4]
+with torch.inference_mode():
+    short_logits = tiny_vlm(vlm_images[:4], short_questions)
+    padded_logits = tiny_vlm(vlm_images[:4], padded_questions)
+torch.testing.assert_close(short_logits, padded_logits, atol=1e-6, rtol=1e-6)
+{&#039;padding_ignored&#039;: True, &#039;maximum_logit_difference&#039;: (short_logits - padded_logits).abs().max().item()}</code></pre>
+        
+      </section>
+<section class="cell markdown-cell"><h2>Day 18 practice and acceptance</h2>
+<ol>
+<li>Replace concatenation with elementwise product and compare capacity.</li>
+<li>Train explicit question-only and image-only neural baselines with the same step budget.</li>
+<li>Shuffle one modality at evaluation and explain what a performance drop does and does not prove.</li>
+<li>Replace answer classification with a sketch of conditional text generation.</li>
+<li>List which modules you would freeze, fully train, or adapt with LoRA in a pretrained system.</li>
+</ol>
+<p><strong>Accept the day when:</strong> the full model beats unimodal controls, both modality shuffles reduce performance, padding is ignored correctly, and architecture capacity is not confused with evidence of modality use.</p>
+</section>
+<section class="cell markdown-cell"><h1>Day 19 — PathVQA protocol, data card, failures, and limitations</h1>
+<p>A real medical VQA experiment requires a data card containing provenance, license, image modality, question construction, de-identification, patient-level split policy, answer vocabulary, missing data, and known limitations. Duplicate images, patients, or templated questions across splits can invalidate results.</p>
+<p>This notebook contains only four toy records. They are useful for metric plumbing, not scientific conclusions. Report yes/no and open questions separately, compare majority and question-only baselines, and review individual failures.</p>
+</section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>toy_predictions = [&#039;yes&#039;, &#039;circular region&#039;, &#039;no&#039;, &#039;purple&#039;]
+metric_buckets = defaultdict(lambda: {&#039;em&#039;: [], &#039;f1&#039;: []})
+pathvqa_rows = []
+for sample, prediction in zip(TOY_PATHVQA, toy_predictions):
+    em = exact_match(prediction, sample[&#039;answer&#039;])
+    f1 = token_f1(prediction, sample[&#039;answer&#039;])
+    metric_buckets[sample[&#039;type&#039;]][&#039;em&#039;].append(em)
+    metric_buckets[sample[&#039;type&#039;]][&#039;f1&#039;].append(f1)
+    pathvqa_rows.append({**sample, &#039;prediction&#039;: prediction, &#039;em&#039;: em, &#039;token_f1&#039;: f1})
+
+stratified_metrics = {
+    question_type: {
+        &#039;exact_match&#039;: sum(values[&#039;em&#039;]) / len(values[&#039;em&#039;]),
+        &#039;token_f1&#039;: sum(values[&#039;f1&#039;]) / len(values[&#039;f1&#039;]),
+        &#039;n&#039;: len(values[&#039;em&#039;]),
+    }
+    for question_type, values in metric_buckets.items()
+}
+overall_majority = Counter(sample[&#039;answer&#039;] for sample in TOY_PATHVQA).most_common(1)[0][0]
+majority_accuracy = sum(sample[&#039;answer&#039;] == overall_majority for sample in TOY_PATHVQA) / len(TOY_PATHVQA)
+{&#039;stratified_metrics&#039;: stratified_metrics, &#039;majority_answer&#039;: overall_majority, &#039;majority_accuracy&#039;: majority_accuracy}</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>failure_records = []
+for row in pathvqa_rows:
+    if row[&#039;em&#039;] == 1:
+        continue
+    if row[&#039;token_f1&#039;] &gt; 0:
+        suspected_cause = &#039;partially correct wording or normalization mismatch&#039;
+    elif row[&#039;type&#039;] == &#039;yes/no&#039;:
+        suspected_cause = &#039;polarity error or visual evidence not used&#039;
+    else:
+        suspected_cause = &#039;semantic or visual recognition error&#039;
+    failure_records.append({
+        &#039;question&#039;: row[&#039;question&#039;],
+        &#039;target&#039;: row[&#039;answer&#039;],
+        &#039;prediction&#039;: row[&#039;prediction&#039;],
+        &#039;type&#039;: row[&#039;type&#039;],
+        &#039;suspected_cause&#039;: suspected_cause,
+    })
+failure_records</code></pre>
+        
+      </section>
+<section class="cell markdown-cell"><h2>Day 19 practice and acceptance</h2>
+<ol>
+<li>Draft a real-data card before downloading any medical dataset.</li>
+<li>Specify patient-, image-, and normalized-question leakage checks.</li>
+<li>Report majority, question-only, image-only, and multimodal baselines by question type.</li>
+<li>Expand the failure taxonomy to visual, linguistic, annotation, shortcut, and metric errors.</li>
+<li>State that the model is educational, not clinically validated, and cannot replace expert review.</li>
+</ol>
+<p><strong>Accept the day when:</strong> provenance and split policy precede modeling, metrics are stratified, individual failures are recorded, and medical-use limitations are explicit.</p>
+</section>
+<section class="cell markdown-cell"><h1>Day 20 — Capstone result table, reproduction package, and defense</h1>
+<p>The minimum capstone compares a majority baseline, question-only baseline, image-only baseline, multimodal model, and both modality-shuffle controls under one fixed protocol. The synthetic XOR experiment is a mechanism check, not a medical benchmark.</p>
+<p>A reproduction package should include environment files, seeds, data-generation or split code, model configuration, training budget, metrics, result table, failure records, and exact commands. Claims must follow the evidence ladder: successful execution, tiny overfit, held-out evaluation, ablation evidence, and only then carefully bounded interpretation.</p>
+</section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>capstone_results = [
+    {&#039;system&#039;: &#039;majority answer&#039;, &#039;uses_image&#039;: False, &#039;uses_question&#039;: False, &#039;accuracy&#039;: majority_accuracy},
+    {&#039;system&#039;: &#039;question-only lookup&#039;, &#039;uses_image&#039;: False, &#039;uses_question&#039;: True, &#039;accuracy&#039;: question_only_accuracy},
+    {&#039;system&#039;: &#039;image-only lookup&#039;, &#039;uses_image&#039;: True, &#039;uses_question&#039;: False, &#039;accuracy&#039;: image_only_accuracy},
+    {&#039;system&#039;: &#039;TinyVLM image + question&#039;, &#039;uses_image&#039;: True, &#039;uses_question&#039;: True, &#039;accuracy&#039;: full_vlm_accuracy},
+    {&#039;system&#039;: &#039;TinyVLM with shuffled images&#039;, &#039;uses_image&#039;: &#039;shuffled&#039;, &#039;uses_question&#039;: True, &#039;accuracy&#039;: image_shuffled_accuracy},
+    {&#039;system&#039;: &#039;TinyVLM with shuffled questions&#039;, &#039;uses_image&#039;: True, &#039;uses_question&#039;: &#039;shuffled&#039;, &#039;accuracy&#039;: question_shuffled_accuracy},
+]
+capstone_results</code></pre>
+        
+      </section>
+
+      <section class="cell code-cell">
+        <div class="prompt">In&nbsp;[ ]</div>
+        <pre class="code"><code>reproduction_manifest = {
+    &#039;scope&#039;: &#039;synthetic mechanism check; no medical claims&#039;,
+    &#039;seed&#039;: 18,
+    &#039;data&#039;: &#039;32 generated XOR image-question examples&#039;,
+    &#039;image_shape&#039;: list(vlm_images.shape[1:]),
+    &#039;model&#039;: &#039;TinyVLMClassifier&#039;,
+    &#039;model_parameters&#039;: count_parameters(tiny_vlm),
+    &#039;optimizer&#039;: &#039;Adam&#039;,
+    &#039;learning_rate&#039;: 0.02,
+    &#039;steps&#039;: 120,
+    &#039;metric&#039;: &#039;classification accuracy&#039;,
+    &#039;baselines&#039;: [&#039;majority&#039;, &#039;question-only lookup&#039;, &#039;image-only lookup&#039;],
+    &#039;ablations&#039;: [&#039;image shuffle&#039;, &#039;question shuffle&#039;],
+    &#039;environment&#039;: &#039;environment.yml / Python 3.11 / CPU PyTorch&#039;,
+}
+print(json.dumps(reproduction_manifest, indent=2))</code></pre>
+        
+      </section>
+<section class="cell markdown-cell"><h1>Final acceptance and ten-minute defense</h1>
+<ul>
+<li><input disabled="" type="checkbox"> I can derive ViT token counts and explain CLS/position embeddings.</li>
+<li><input disabled="" type="checkbox"> I can write the symmetric CLIP objective and compute retrieval at 1.</li>
+<li><input disabled="" type="checkbox"> I can distinguish pooled fusion, cross-attention, and projector-to-LLM designs.</li>
+<li><input disabled="" type="checkbox"> My multimodal model beats majority and both unimodal controls.</li>
+<li><input disabled="" type="checkbox"> Image and question shuffles reduce performance in the controlled task.</li>
+<li><input disabled="" type="checkbox"> I report yes/no and open QA metrics separately.</li>
+<li><input disabled="" type="checkbox"> I audit source, license, de-identification, patient splits, and duplicates before real data use.</li>
+<li><input disabled="" type="checkbox"> I provide environment, seed, configuration, results, and failure records.</li>
+<li><input disabled="" type="checkbox"> I state that synthetic success does not imply real medical usefulness.</li>
+</ul>
+<p>For the oral defense, explain the question, data protocol, architecture, baselines, training budget, results, shuffle evidence, failure cases, limitations, and one justified next experiment. The next experiment should improve evidence quality rather than merely increase model size.</p>
+</section>
+  </main>
+</body>
+</html>
